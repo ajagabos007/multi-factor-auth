@@ -20,7 +20,7 @@ class WebAuthnRegisterController
     {
         return $request
             ->fastRegistration()
-//            ->userless()
+            // ->userless()
 //            ->allowDuplicates()
             ->toCreate();
     }
@@ -34,7 +34,6 @@ class WebAuthnRegisterController
     public function register(AttestedRequest $request): Response
     {
         $request->save();
-
         return response()->noContent();
     }
 }

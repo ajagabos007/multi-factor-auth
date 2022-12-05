@@ -12,6 +12,13 @@ use App\Actions\Jetstream\UpdateTeamName;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Jetstream\Jetstream;
 
+use App\Http\Requests\LoginWithRecaptchaRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Laravel\Fortify\Fortify;
+
 class JetstreamServiceProvider extends ServiceProvider
 {
     /**
@@ -40,6 +47,27 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::removeTeamMembersUsing(RemoveTeamMember::class);
         Jetstream::deleteTeamsUsing(DeleteTeam::class);
         Jetstream::deleteUsersUsing(DeleteUser::class);
+
+        Fortify::authenticateUsing(function (Request $request) {
+            Validator::make(
+                $inputs = $request->all(),
+                $rules= [
+                'g-recaptcha-response' => 'required|google_recaptcha',
+                ], 
+                $messages= [
+                    'g-recaptcha-response.required' => 'The reCAPTCHA field must be checked',
+                    'g-recaptcha-response.google_recaptcha' => "The reCAPTCHA verification failed",
+                ]
+            )->validate();
+            
+            $user = User::where('email', $request->email)->first();
+    
+            if ($user &&
+                Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+        });
+
     }
 
     /**

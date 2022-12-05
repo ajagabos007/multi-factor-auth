@@ -31,6 +31,11 @@
                     <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
                 </label>
             </div>
+            @if(config('services.google_recaptcha.site_key'))
+                <div class="g-recaptcha"
+                    data-sitekey="{{config('services.google_recaptcha.site_key')}}">
+                </div>
+            @endif
 
             <div class="flex items-center justify-end mt-4">
                 @if (Route::has('password.request'))
